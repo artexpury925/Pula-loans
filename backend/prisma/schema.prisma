@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  firstName     String
+  secondName    String?
+  lastName      String
+  phone         String   @unique
+  omang         String   @unique
+referredBy    String?
+  referralCode  String   @unique @default(cuid())
+  pinHash       String
+  createdAt     DateTime @default(now())
+  loans         LoanRequest[]
+  referrals     User[]   @relation("Referrals", fields: [referredBy], references: [referralCode])
+  isAdmin       Boolean  @default(false)
+}
+
+model LoanRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int
+  repayAmount Int
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model ReferralClick {
+  id        String   @id @default(cuid())
+  code      String
+  ip        String
+  userAgent String?
+  createdAt DateTime @default(now())
+}
