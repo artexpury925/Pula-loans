@@ -1,41 +1,48 @@
-import { Routes, Route, Link } from 'react-router-dom'
-import Register from './pages/Register'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Admin from './pages/Admin'
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-function App() {
+export default function Admin() {
+  const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get('/api/admin/users', { withCredentials: true });
+        setUsers(res.data);
+      } catch (err) {
+        if (err.response?.status === 401 || err.response?.status === 403) navigate('/login');
+      }
+    };
+    fetchUsers();
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen bg-botswana-blue text-white">
-      <header className="bg-black py-6 shadow-lg">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl font-bold">Pula Loans</h1>
-          <p className="text-botswana-light">Fast. Fair. Botswana.</p>
-        </div>
-      </header>
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/r/:code" element={<Home refCode />} />
-      </Routes>
+    <div className="max-w-4xl mx-auto p-6 bg-white text-black rounded-xl mt-10">
+      <h2 className="text-2xl font-bold text-botswana-blue mb-6">Admin Panel</h2>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-botswana-blue text-white">
+            <th className="p-2">Name</th>
+            <th className="p-2">Phone</th>
+            <th className="p-2">Omang</th>
+            <th className="p-2">Referral Code</th>
+            <th className="p-2">Loans</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((u) => (
+            <tr key={u.phone} className="border-b">
+              <td className="p-2">{u.firstName} {u.lastName}</td>
+              <td className="p-2">{u.phone}</td>
+              <td className="p-2">{u.omang}</td>
+              <td className="p-2">{u.referralCode}</td>
+              <td className="p-2">{u.loans.length} requests</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-  )
+  );
 }
-
-function Home({ refCode }) {
-  return (
-    <div className="max-w-md mx-auto p-8 text-center">
-      <h2 className="text-3xl mb-8">Get a loan in minutes</h2>
-      <div className="space-y-4">
-        <Link to="/register" className="block bg-white text-botswana-blue py-4 rounded-lg text-xl font-bold">Apply Now</Link>
-        <Link to="/login" className="block bg-botswana-dark py-4 rounded-lg">Login with PIN</Link>
-      </div>
-    </div>
-  )
-}
-
-export default App
