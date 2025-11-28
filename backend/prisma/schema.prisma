@@ -16,15 +16,15 @@ model User {
   omang         String   @unique
   pinHash       String
   referralCode  String   @unique @default(cuid())
-  referredBy    String?  
+  referredBy    String?
   createdAt     DateTime @default(now())
   isAdmin       Boolean  @default(false)
 
   // Loans
   loans         LoanRequest[]
 
-  // Referral relations – FIXED PROPERLY
-  referredUsers User[]   @relation("UserReferrals", fields: [referredBy], references: [referralCode])
+  // Referral relations – FIXED CORRECTLY (fields/references ONLY on scalar side)
+  referredUsers User[]   @relation("UserReferrals")
   referrer      User?    @relation("UserReferrals", fields: [referredBy], references: [referralCode])
 }
 
