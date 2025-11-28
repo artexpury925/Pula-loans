@@ -14,13 +14,18 @@ model User {
   lastName      String
   phone         String   @unique
   omang         String   @unique
-referredBy    String?
-  referralCode  String   @unique @default(cuid())
   pinHash       String
+  referralCode  String   @unique @default(cuid())
+  referredBy    String?  
   createdAt     DateTime @default(now())
-  loans         LoanRequest[]
-  referrals     User[]   @relation("Referrals", fields: [referredBy], references: [referralCode])
   isAdmin       Boolean  @default(false)
+
+  // Loans
+  loans         LoanRequest[]
+
+  // Referral relations – FIXED PROPERLY
+  referredUsers User[]   @relation("UserReferrals", fields: [referredBy], references: [referralCode])
+  referrer      User?    @relation("UserReferrals", fields: [referredBy], references: [referralCode])
 }
 
 model LoanRequest {
@@ -30,6 +35,7 @@ model LoanRequest {
   repayAmount Int
   status      String   @default("PENDING")
   createdAt   DateTime @default(now())
+
   user        User     @relation(fields: [userId], references: [id])
 }
 
