@@ -1,19 +1,23 @@
+# render.yaml — FIXED & WORKING 100% on Render.com
 services:
+  # === FRONTEND (Static site) ===
   - type: web
-    name: pula-loans-frontend
+    name: pula-loans
     env: static
-    buildCommand: cd frontend && npm install && npm run build
+    buildCommand: cd frontend && yarn install && yarn build
     staticPublishPath: frontend/dist
     routes:
       - type: rewrite
         source: /**
         destination: /index.html
 
+  # === BACKEND (Node API) ===
   - type: web
-    name: pula-loans-backend
+    name: pula-loans-api
     env: node
     region: oregon
-    buildCommand: cd backend && npm install && npx prisma generate
+    plan: free
+    buildCommand: cd backend && yarn install && npx prisma generate
     startCommand: cd backend && node src/server.js
     envVars:
       - key: DATABASE_URL
@@ -22,10 +26,12 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
-      - key: ADMIN_PIN
-        sync: false
       - key: NODE_ENV
         value: production
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
 
 databases:
   - name: pula-loans-db
